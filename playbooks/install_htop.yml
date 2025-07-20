@@ -1,0 +1,9 @@
+- name: Install htop
+  hosts: myservers
+  become: true
+  tasks:
+    - name: Install htop
+      apt:
+        name: htop
+        state: present
+        update_cache: yes
