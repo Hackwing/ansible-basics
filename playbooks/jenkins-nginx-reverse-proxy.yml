@@ -1,0 +1,57 @@
+---
+- name: Setup NGINX reverse proxy for Jenkins
+  hosts: all
+  become: true
+
+  vars:
+    jenkins_domain: jenkins.ilhamdev.xyz
+    jenkins_port: 8080
+
+  tasks:
+    - name: Install NGINX
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Ensure NGINX is enabled and running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Remove default nginx config (if exists)
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Add reverse proxy config for Jenkins
+      template:
+        src: ../templates/jenkins_proxy.conf.j2
+        dest: "/etc/nginx/sites-available/{{ jenkins_domain }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable Jenkins reverse proxy config
+      file:
+        src: "/etc/nginx/sites-available/{{ jenkins_domain }}"
+        dest: "/etc/nginx/sites-enabled/{{ jenkins_domain }}"
+        state: link
+        force: yes
+
+    - name: Test NGINX configuration
+      command: nginx -t
+      register: nginx_test
+      failed_when: nginx_test.rc != 0
+      changed_when: false
+
+    - name: Reload NGINX
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Show access info
+      debug:
+        msg: "✅ Jenkins is now accessible at http://{{ jenkins_domain }}"
+

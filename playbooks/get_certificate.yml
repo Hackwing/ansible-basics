@@ -1,0 +1,12 @@
+---
+- name: Obtain Let's Encrypt Certificate for Jenkins
+  hosts: all
+  become: true
+  vars:
+    jenkins_domain: "jenkins.ilhamdev.xyz"
+    email: "ceo@ilhamkhan.xyz"
+
+  tasks:
+    - name: Get certificate using Certbot and NGINX
+      command: >
+        certbot --nginx -d {{ jenkins_domain }} --non-interactive --agree-tos -m {{ email }}

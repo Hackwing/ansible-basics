@@ -1,0 +1,21 @@
+---
+- name: Grant sudo privileges to a user
+  hosts: all
+  become: true
+  vars:
+    target_user: ilham  # change to your username
+
+  tasks:
+    - name: Ensure the user exists
+      ansible.builtin.user:
+        name: "{{ target_user }}"
+        state: present
+
+    - name: Create sudoers file for user with passwordless sudo
+      ansible.builtin.template:
+        src:  ../templates/sudoer.j2
+        dest: "/etc/sudoers.d/{{ target_user }}"
+        owner: root
+        group: root
+        mode: '0440'
+        validate: 'visudo -cf %s'

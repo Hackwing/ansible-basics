@@ -1,0 +1,9 @@
+- name: Create a new user
+  hosts: all
+  become: yes
+  tasks:
+    - name: Add user 'deployer'
+      user:
+        name: deployer
+        shell: /bin/bash
+        groups: sudo

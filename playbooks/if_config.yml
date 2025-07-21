@@ -1,0 +1,25 @@
+---
+- name: Setup ifconfig in server
+  hosts: myservers
+  become: yes
+
+  tasks:
+    # - name: Force system time sync via curl
+    #   shell: |
+    #     date -s "$(curl -s --head https://google.com | grep ^Date: | cut -d' ' -f2-)"
+    #   ignore_errors: true
+
+    # - name: Update apt cache
+    #   apt:
+    #     update_cache: yes
+
+    - name: Install NET-TOOLS
+      apt:
+        name: net-tools
+        state: present
+
+    # - name: Start and enable NGINX
+    #   systemd:
+    #     name: nginx
+    #     state: started
+    #     enabled: true

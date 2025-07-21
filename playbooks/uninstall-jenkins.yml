@@ -1,0 +1,48 @@
+---
+- name: Uninstall Jenkins from target server
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Stop Jenkins service
+      systemd:
+        name: jenkins
+        state: stopped
+        enabled: false
+      ignore_errors: true
+
+    - name: Remove Jenkins package
+      apt:
+        name: jenkins
+        state: absent
+        purge: yes
+
+    - name: Remove Jenkins configuration files and directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/jenkins
+        - /etc/jenkins
+        - /var/log/jenkins
+
+    - name: Remove Jenkins repo file
+      file:
+        path: /etc/apt/sources.list.d/jenkins.list
+        state: absent
+
+    - name: Remove Jenkins apt key (optional)
+      apt_key:
+        id: "62A9756BFD780C377CF24BA8FCEF946B20B81845"
+        state: absent
+      ignore_errors: true
+
+    - name: Clean apt cache
+      apt:
+        update_cache: yes
+        autoclean: yes
+        autoremove: yes
+
+    - name: Show Jenkins cleanup message
+      debug:
+        msg: "✅ Jenkins has been fully removed from this server."
